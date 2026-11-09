@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#071d49">
+<title>CFSI Fault Reporting System - Administrator Dashboard</title>
+<style>
+:root{--navy:#071d49;--navy-light:#0b2d6b;--blue:#164b9b;--white:#fff;--gray:#f3f5f9;--border:#d9dee8;--text:#222;--muted:#5b6472;--critical:#dc2626;--high:#f97316;--moderate:#eab308;--low:#16a34a}*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:var(--text);font-family:Arial,Helvetica,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.navbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 5%;background:var(--navy);color:white}.navbar-title{font-size:19px;font-weight:700;line-height:1.4}.navbar-title span{display:block;margin-top:3px;font-size:11px;font-weight:400;opacity:.85}.admin-info{display:flex;align-items:center;gap:12px}.admin-name{font-size:13px}.admin-avatar{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:white;color:var(--navy);font-weight:700}.main{width:min(1200px,100%);margin:auto;padding:30px 22px 50px}.page-title{margin-bottom:24px}.page-title h1{margin:0 0 8px;color:var(--navy);font-size:30px}.page-title p{margin:0;color:var(--muted);line-height:1.6}.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:24px}.stat-card,.filter-card,.reports-card,.ai-summary-card{background:white;border:1px solid var(--border);border-radius:14px;box-shadow:0 4px 15px #071d490d}.stat-card{padding:20px}.stat-card h3{margin:0 0 12px;color:var(--muted);font-size:13px}.stat-card strong{font-size:28px;color:var(--navy)}.critical-stat{border-top:4px solid var(--critical)}.pending-stat{border-top:4px solid var(--moderate)}.progress-stat{border-top:4px solid var(--blue)}.resolved-stat{border-top:4px solid var(--low)}.filter-card,.reports-card,.ai-summary-card{padding:22px;margin-bottom:24px}.filter-card h2,.reports-title h2{margin:0;color:var(--navy);font-size:19px}.filters{display:grid;grid-template-columns:1fr 1fr 2fr;gap:12px;margin-top:18px}.filters select,.filters input,.status-select{width:100%;min-width:0;padding:12px;border:1px solid var(--border);border-radius:8px;background:white;color:var(--text)}.reports-title{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px}.report-count{background:#edf2fb;color:var(--navy);padding:6px 10px;border-radius:20px;font-size:12px}.report-item{border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;background:white}.report-header{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}.report-title{color:var(--navy);font-size:17px;font-weight:700;margin:0 0 6px}.report-meta{color:var(--muted);font-size:12px;line-height:1.6}.badges{display:flex;flex-wrap:wrap;gap:6px}.badge{display:inline-block;border-radius:20px;padding:5px 9px;font-size:11px;font-weight:700;white-space:nowrap}.priority-critical{color:#991b1b;background:#fee2e2}.priority-high{color:#9a3412;background:#ffedd5}.priority-moderate{color:#854d0e;background:#fef9c3}.priority-low{color:#166534;background:#dcfce7}.status-pending{color:#854d0e;background:#fef9c3}.status-in-progress{color:#1e40af;background:#dbeafe}.status-resolved{color:#166534;background:#dcfce7}.report-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}.detail-box{background:#f8f9fc;padding:12px;border-radius:8px;min-width:0}.detail-box strong{display:block;color:var(--navy);font-size:12px;margin-bottom:6px}.detail-box span{color:#3f4652;font-size:13px;overflow-wrap:anywhere}.report-description{color:#555;font-size:14px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;margin:12px 0}.report-image{display:block;width:100%;max-width:400px;max-height:300px;object-fit:contain;border-radius:8px;border:1px solid var(--border);margin:12px 0}.admin-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:15px;margin-top:15px}.admin-controls label{color:var(--navy);font-size:13px;font-weight:700}.status-select{width:auto;flex:1 1 180px}.update-btn,.secondary-btn{border:0;border-radius:8px;padding:11px 15px;font-weight:700;font-size:13px}.update-btn{background:var(--navy);color:white}.update-btn:hover{background:var(--navy-light)}.empty{text-align:center;padding:40px 18px;color:var(--muted);line-height:1.6}.empty-icon{font-size:42px;margin-bottom:10px}.ai-summary-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:20px}.ai-summary-heading{flex:1 1 220px}.ai-summary-heading h2{color:var(--navy);font-size:22px;line-height:1.4;margin:0 0 8px}.ai-summary-heading p{color:#555;font-size:14px;line-height:1.6;margin:0}.ai-generate-btn{display:inline-flex;justify-content:center;align-items:center;background:var(--navy);color:white;border:0;border-radius:8px;padding:12px 16px;min-height:44px;font-size:14px;font-weight:700}.ai-generate-btn:hover{background:var(--navy-light)}.ai-generate-btn:disabled{opacity:.65;cursor:wait}.ai-summary-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}.ai-mini-stat{background:var(--gray);border:1px solid var(--border);border-radius:10px;padding:15px;min-width:0}.ai-mini-stat span{display:block;color:#555;font-size:12px;line-height:1.5;margin-bottom:8px}.ai-mini-stat strong{display:block;color:var(--navy);font-size:25px;overflow-wrap:anywhere}.ai-summary-output{background:#f7f9fd;border-left:4px solid var(--blue);border-radius:8px;padding:18px;color:#222;font-size:14px;line-height:1.8;overflow-wrap:anywhere}.ai-summary-output h3{color:var(--navy);font-size:16px;margin:0 0 8px}.ai-summary-output p{margin:8px 0 16px}.ai-summary-output ul{padding-left:22px;margin:8px 0 18px}.ai-summary-output li{margin-bottom:6px}.ai-summary-note{color:#666;font-size:12px;line-height:1.6;margin:14px 0 0}
+@media(max-width:1000px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:800px){.filters{grid-template-columns:1fr}.report-details{grid-template-columns:1fr}}@media(max-width:600px){.navbar{padding:12px 15px}.navbar-title{font-size:15px}.navbar-title span{font-size:9px}.admin-name{display:none}.main{padding:20px 12px 35px}.page-title h1{font-size:23px}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat-card{padding:15px}.stat-card strong{font-size:22px}.filter-card,.reports-card,.ai-summary-card{padding:16px}.report-header{flex-direction:column}.admin-controls{flex-direction:column;align-items:stretch}.status-select,.update-btn{width:100%}.ai-summary-header{flex-direction:column;align-items:stretch}.ai-summary-heading h2{font-size:21px}.ai-generate-btn{width:100%}.ai-summary-stats{grid-template-columns:1fr;gap:10px}.ai-mini-stat{padding:12px 14px}.ai-mini-stat strong{font-size:23px}.ai-summary-output{padding:14px}}
+body.dark-mode{background:#0b1220;color:#f3f4f6}body.dark-mode .page-title h1,body.dark-mode .stat-card strong,body.dark-mode .filter-card h2,body.dark-mode .reports-title h2,body.dark-mode .report-title,body.dark-mode .admin-controls label{color:#f9fafb}body.dark-mode .page-title p,body.dark-mode .stat-card h3,body.dark-mode .report-meta{color:#cbd5e1}body.dark-mode .stat-card,body.dark-mode .filter-card,body.dark-mode .reports-card,body.dark-mode .report-item,body.dark-mode .ai-summary-card{background:#111827;border-color:#374151}body.dark-mode .filters input,body.dark-mode .filters select,body.dark-mode .status-select{background:#1f2937;color:#f9fafb;border-color:#4b5563}body.dark-mode .detail-box,body.dark-mode .ai-mini-stat{background:#1f2937;border-color:#374151}body.dark-mode .detail-box strong,body.dark-mode .ai-summary-heading h2,body.dark-mode .ai-mini-stat strong,body.dark-mode .ai-summary-output h3{color:#93c5fd}body.dark-mode .detail-box span,body.dark-mode .report-description,body.dark-mode .ai-summary-heading p,body.dark-mode .ai-mini-stat span,body.dark-mode .ai-summary-note{color:#d1d5db}body.dark-mode .ai-summary-output{background:#1f2937;color:#f9fafb;border-left-color:#60a5fa}
+</style>
+</head>
+<body>
+<nav class="navbar"><div class="navbar-title">CFSI Fault Reporting System<span>School Authority / Administrator</span></div><div class="admin-info"><div class="admin-name">School Authority</div><div class="admin-avatar">SA</div></div></nav>
+<main class="main">
+<div class="page-title"><h1>Administrator Dashboard</h1><p>Monitor, manage, and track reported school equipment and facility faults.</p></div>
+<section class="stats">
+<div class="stat-card"><h3>Total Reports</h3><strong id="totalReports">0</strong></div><div class="stat-card critical-stat"><h3>Critical</h3><strong id="criticalReports">0</strong></div><div class="stat-card pending-stat"><h3>Pending</h3><strong id="pendingReports">0</strong></div><div class="stat-card progress-stat"><h3>In Progress</h3><strong id="progressReports">0</strong></div><div class="stat-card resolved-stat"><h3>Resolved</h3><strong id="resolvedReports">0</strong></div>
+</section>
+<section class="ai-summary-card">
+<div class="ai-summary-header">
+  <div class="ai-summary-heading">
+    <h2>✨ AI Summary Report</h2>
+    <p>Review equipment faults, urgent issues, and maintenance priorities.</p>
+  </div><button type="button" class="ai-generate-btn" id="aiGenerateButton">✨ Generate Summary</button>
+</div>
+  
+<div class="ai-summary-stats"><div class="ai-mini-stat">
+  <span>Total Reports</span>
+  <strong id="aiTotalReports">0</strong>
+  
+</div><div class="ai-mini-stat">
+  <span>Unresolved</span>
+  <strong id="aiUnresolvedReports">0</strong></div>
+  <div class="ai-mini-stat">
+    <span>Critical / High</span>
+    <strong id="aiUrgentReports">0</strong></div></div>
+  
+<div class="ai-summary-output" id="aiSummaryOutput" aria-live="polite"><p>Click "Generate Summary" to analyze the currently saved fault reports.</p></div>
+<p class="ai-summary-note">Prototype note: this version uses automatic statistics and predefined rules, not a genuine AI model. It reads reports saved in this browser under the localStorage key <strong>cfsiReports</strong>.</p>
+</section>
+<section class="filter-card"><h2>Filter Reports</h2><div class="filters"><select id="priorityFilter" aria-label="Filter by severity"><option value="all">All Severity Levels</option><option value="Critical">🔴 Critical</option><option value="High">🟠 High</option><option value="Moderate">🟡 Moderate</option><option value="Low">🟢 Low</option></select><select id="statusFilter" aria-label="Filter by status"><option value="all">All Statuses</option><option value="Pending">Pending</option><option value="In Progress">In Progress</option><option value="Resolved">Resolved</option></select><input type="search" id="searchInput" placeholder="Search location, category, or report ID..." aria-label="Search reports"></div></section>
+<section class="reports-card"><div class="reports-title"><h2>Submitted Fault Reports</h2><span class="report-count" id="reportCount">0 reports</span></div><div id="reportsList"><div class="empty"><div class="empty-icon">📋</div><p>No fault reports have been submitted yet.</p></div></div></section>
+</main>
+
+
+<style>
+.ai-summary-card {
+    background: var(--white, #ffffff);
+    border: 1px solid var(--border, #d9dee8);
+    border-radius: 14px;
+    padding: 20px;
+    margin: 25px 0;
+    box-shadow: 0 4px 15px rgba(7, 29, 73, 0.06);
+    box-sizing: border-box;
+}
+
+.ai-summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.ai-summary-heading {
+    flex: 1 1 220px;
+}
+
+.ai-summary-heading h2 {
+    color: var(--navy, #071d49);
+    font-size: 22px;
+    margin: 0 0 8px;
+}
+
+.ai-summary-heading p {
+    color: #555;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.ai-generate-btn {
+    background: var(--navy, #071d49);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 16px;
+    min-height: 44px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.ai-generate-btn:hover {
+    background: var(--navy-light, #0b2d6b);
+}
+
+.ai-generate-btn:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}
+
+.ai-summary-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.ai-mini-stat {
+    background: var(--gray, #f3f5f9);
+    border: 1px solid var(--border, #d9dee8);
+    border-radius: 10px;
+    padding: 15px;
+    min-width: 0;
+}
+
+.ai-mini-stat span {
+    display: block;
+    color: #555;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.ai-mini-stat strong {
+    color: var(--navy, #071d49);
+    font-size: 25px;
+}
+
+.ai-summary-output {
+    background: #f7f9fd;
+    border-left: 4px solid var(--blue, #164b9b);
+    border-radius: 8px;
+    padding: 18px;
+    color: #222;
+    font-size: 14px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.ai-summary-output h3 {
+    color: var(--navy, #071d49);
+    font-size: 16px;
+    margin: 0 0 8px;
+}
+
+.ai-summary-output p {
+    margin: 8px 0 16px;
+}
+
+.ai-summary-output ul {
+    padding-left: 22px;
+    margin: 8px 0 18px;
+}
+
+.ai-summary-note {
+    color: #666;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-top: 14px;
+}
+
+@media (max-width: 600px) {
+    .ai-summary-card {
+        padding: 16px;
+    }
+
+    .ai-summary-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ai-generate-btn {
+        width: 100%;
+    }
+
+    .ai-summary-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .ai-mini-stat {
+        padding: 12px 14px;
+    }
+
+    .ai-summary-output {
+        padding: 14px;
+    }
+}
+
+body.dark-mode .ai-summary-card {
+    background: #111827;
+    border-color: #374151;
+}
+
+body.dark-mode .ai-summary-heading h2,
+body.dark-mode .ai-mini-stat strong,
+body.dark-mode .ai-summary-output h3 {
+    color: #93c5fd;
+}
+
+body.dark-mode .ai-summary-heading p,
+body.dark-mode .ai-mini-stat span,
+body.dark-mode .ai-summary-note {
+    color: #d1d5db;
+}
+
+body.dark-mode .ai-mini-stat,
+body.dark-mode .ai-summary-output {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+}
+</style>
+
+<script>
+(function () {
+    "use strict";
+
+    const button = document.getElementById("aiGenerateButton");
+    const output = document.getElementById("aiSummaryOutput");
+
+    function readReports() {
+        const saved = localStorage.getItem("cfsiReports");
+
+        if (!saved) return [];
+
+        const data = JSON.parse(saved);
+
+        if (!Array.isArray(data)) {
+            throw new Error("Saved reports must be a list.");
+        }
+
+        return data;
+    }
+
+    function getField(report, names, fallback = "") {
+        for (const name of names) {
+            if (
+                report[name] !== undefined &&
+                report[name] !== null &&
+                String(report[name]).trim() !== ""
+            ) {
+                return String(report[name]).trim();
+            }
+        }
+
+        return fallback;
+    }
+
+    function getPriority(report) {
+        return getField(
+            report,
+            ["priority", "severity", "urgency"],
+            "Low"
+        ).toLowerCase();
+    }
+
+    function getStatus(report) {
+        const status = getField(report, ["status"], "Pending")
+            .toLowerCase();
+
+        if (
+            status === "resolved" ||
+            status === "completed" ||
+            status === "complete"
+        ) {
+            return "Resolved";
+        }
+
+        if (
+            status === "in progress" ||
+            status === "in-progress" ||
+            status === "in_progress"
+        ) {
+            return "In Progress";
+        }
+
+        return "Pending";
+    }
+
+    function getCategory(report) {
+        return getField(
+            report,
+            ["category", "equipmentCategory", "itemCategory", "type"],
+            "Uncategorized"
+        );
+    }
+
+    function addHeading(text) {
+        const heading = document.createElement("h3");
+        heading.textContent = text;
+        output.appendChild(heading);
+    }
+
+    function addParagraph(text) {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = text;
+        output.appendChild(paragraph);
+    }
+
+    function addList(items) {
+        const list = document.createElement("ul");
+
+        items.forEach(text => {
+            const item = document.createElement("li");
+            item.textContent = text;
+            list.appendChild(item);
+        });
+
+        output.appendChild(list);
+    }
+
+    function generateAISummary() {
+        button.disabled = true;
+        button.textContent = "Analyzing...";
+
+        try {
+            const reports = readReports();
+
+            const total = reports.length;
+
+            const critical = reports.filter(
+                report => getPriority(report) === "critical"
+            ).length;
+
+            const high = reports.filter(
+                report => getPriority(report) === "high"
+            ).length;
+
+            const pending = reports.filter(
+                report => getStatus(report) === "Pending"
+            ).length;
+
+            const progress = reports.filter(
+                report => getStatus(report) === "In Progress"
+            ).length;
+
+            const resolved = reports.filter(
+                report => getStatus(report) === "Resolved"
+            ).length;
+
+            const unresolved = total - resolved;
+
+            const urgentUnresolved = reports.filter(report => {
+                const priority = getPriority(report);
+
+                return (
+                    ["critical", "high"].includes(priority) &&
+                    getStatus(report) !== "Resolved"
+                );
+            }).length;
+
+            document.getElementById("aiTotalReports").textContent = total;
+            document.getElementById("aiUnresolvedReports").textContent =
+                unresolved;
+            document.getElementById("aiUrgentReports").textContent =
+                critical + high;
+
+            const categories = {};
+
+            reports.forEach(report => {
+                const category = getCategory(report);
+                categories[category] = (categories[category] || 0) + 1;
+            });
+
+            const topCategories = Object.entries(categories)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+
+            output.replaceChildren();
+
+            addHeading("CFSI Maintenance Overview");
+
+            if (total === 0) {
+                addParagraph(
+                    'No reports found. Check whether your student dashboard saves reports under "cfsiReports".'
+                );
+                return;
+            }
+
+            addParagraph(
+                `There are ${total} reports: ${resolved} resolved, ${pending} pending, and ${progress} in progress. ${unresolved} remain unresolved.`
+            );
+
+            addHeading("Priority Issues");
+
+            addParagraph(
+                urgentUnresolved > 0
+                    ? `${urgentUnresolved} unresolved report(s) are marked Critical or High. Administrators should review them promptly.`
+                    : "No unresolved Critical or High priority reports were found."
+            );
+
+            addHeading("Recurring Equipment Problems");
+
+            if (topCategories.length) {
+                addList(
+                    topCategories.map(
+                        ([category, count]) =>
+                            `${category}: ${count} report(s)`
+                    )
+                );
+            } else {
+                addParagraph("No report categories are available.");
+            }
+
+            addHeading("Suggested Maintenance Actions");
+
+            const actions = [];
+
+            if (urgentUnresolved > 0) {
+                actions.push(
+                    "Review unresolved Critical and High priority reports first."
+                );
+            }
+
+            if (pending > 0) {
+                actions.push(
+                    `Review and assign the ${pending} pending report(s).`
+                );
+            }
+
+            if (progress > 0) {
+                actions.push(
+                    `Follow up on the ${progress} report(s) in progress.`
+                );
+            }
+
+            if (topCategories.length && topCategories[0][1] > 1) {
+                actions.push(
+                    `Investigate recurring faults in ${topCategories[0][0]}.`
+                );
+            }
+
+            if (!actions.length) {
+                actions.push(
+                    "Continue monitoring new reports and verify completed repairs."
+                );
+            }
+
+            addList(actions);
+
+            addParagraph(
+                "This is a rule-based summary, not a genuine AI-generated response."
+            );
+
+        } catch (error) {
+            output.replaceChildren();
+            addParagraph(
+                error.message || "Unable to generate the summary."
+            );
+        } finally {
+            button.disabled = false;
+            button.textContent = "✨ Generate Summary";
+        }
+    }
+
+    button.addEventListener("click", generateAISummary);
+
+    // Initial display
+    try {
+        const reports = readReports();
+
+        document.getElementById("aiTotalReports").textContent = reports.length;
+        document.getElementById("aiUnresolvedReports").textContent =
+            reports.filter(r => getStatus(r) !== "Resolved").length;
+        document.getElementById("aiUrgentReports").textContent =
+            reports.filter(r =>
+                ["critical", "high"].includes(getPriority(r))
+            ).length;
+    } catch (_) {
+        // The Generate Summary button will show any storage error.
+    }
+})();
+</script>
+
+<!-- END CFSI AI SUMMARY REPORT -->
