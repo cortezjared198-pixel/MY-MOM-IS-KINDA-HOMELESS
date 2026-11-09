@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CFSI Fault Reporting System</title>
+
+    <style>
+        /* =========================
+           1. THEME COLORS
+        ========================== */
+        :root {
+            color-scheme: light;
+            --navy: #071d49;
+            --navy-light: #0b2d6b;
+            --blue: #164b9b;
+            --background: #f3f5f9;
+            --surface: #ffffff;
+            --surface-soft: #f8f9fc;
+            --text: #222222;
+            --heading: #071d49;
+            --muted: #606b7b;
+            --border: #d9dee8;
+            --input-bg: #ffffff;
+            --critical: #dc2626;
+            --high: #f97316;
+            --moderate: #eab308;
+            --low: #2563eb;
+            --success: #15803d;
+            --shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        /* =========================
+           2. DARK MODE
+        ========================== */
+        body.dark {
+            color-scheme: dark;
+            --navy: #101f3d;
+            --navy-light: #1b3564;
+            --blue: #7eafff;
+            --background: #0b1220;
+            --surface: #172235;
+            --surface-soft: #202d42;
+            --text: #edf2f7;
+            --heading: #e4edff;
+            --muted: #bdc8d8;
+            --border: #39465b;
+            --input-bg: #111b2b;
+            --success: #4ade80;
+            --shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* =========================
+           3. GENERAL STYLES
+        ========================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            transition: background 0.2s, color 0.2s;
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--heading);
+        }
+
+        p, label, li, span, small {
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        /* =========================
+           4. TOP NAVIGATION
+        ========================== */
+        .navbar {
+            min-height: 70px;
+            background: var(--navy);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 22px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .menu-toggle {
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #ffffff;
+            font-size: 27px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .navbar-title {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .navbar-title span {
+            display: block;
+            color: #d5deee;
+            font-size: 12px;
+            font-weight: normal;
+            margin-top: 4px;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-name {
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: #ffffff;
+            color: #071d49;
+            font-weight: bold;
+        }
+
+        /* =========================
+           5. PAGE LAYOUT
+        ========================== */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            width: 235px;
+            flex-shrink: 0;
+            padding: 20px 12px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            transition: width 0.2s, padding 0.2s;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            padding-left: 0;
+            padding-right: 0;
+            border-right: none;
+        }
+
+        .menu-label {
+            color: var(--muted);
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 8px 12px 14px;
+        }
+
+        .nav-button {
+            display: block;
+            width: 100%;
+            padding: 13px 12px;
+            margin-bottom: 5px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text);
+            text-align: left;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            background: var(--surface-soft);
+        }
+
+        .nav-button.active {
+            background: var(--navy);
+            color: #ffffff;
+        }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            max-width: 1450px;
+            margin: 0 auto;
+            padding: 30px 22px 45px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* =========================
+           6. STATISTICS
+        ========================== */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 5px solid var(--navy);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card h3 {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card strong {
+            color: var(--heading);
+            font-size: 28px;
+        }
+
+        /* =========================
+           7. CARDS AND CONTENT
+        ========================== */
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            min-width: 0;
+            padding: 25px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .reports-card {
+            margin-top: 20px;
+        }
+
+        /* =========================
+           8. FORM ELEMENTS
+        ========================== */
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--input-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--muted);
+            opacity: 1;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 2px rgba(22, 75, 155, 0.12);
+        }
+
+        select option,
+        optgroup {
+            background: var(--input-bg);
+            color: var(--text);
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        /* =========================
+           9. SEVERITY SELECTION
+        ========================== */
+        .priority-options {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .priority-option {
+            padding: 13px 8px;
+            border: 3px solid transparent;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .priority-option:hover {
+            transform: translateY(-2px);
+        }
+
+        .priority-option.selected {
+            border-color: var(--heading);
+            box-shadow: 0 0 0 2px var(--surface);
+        }
+
+        .critical {
+            background: #dc2626;
+            color: #ffffff;
+        }
+
+        .high {
+            background: #f97316;
+            color: #ffffff;
+        }
+
+        .moderate {
+            background: #eab308;
+            color: #222222;
+        }
+
+        .low {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        /* =========================
+           10. BUTTONS
+        ========================== */
+        .submit-btn,
+        .primary-btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: var(--navy);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover,
+        .primary-btn:hover {
+            background: var(--navy-light);
+        }
+
+        .secondary-btn {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .secondary-btn:hover {
+            background: var(--surface-soft);
+        }
+
+        /* =========================
+           11. PHOTO PREVIEW
+        ========================== */
+        .photo-preview {
+            display: none;
+            width: 100%;
+            max-height: 230px;
+            object-fit: contain;
+            margin-top: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        /* =========================
+           12. SEVERITY GUIDE
+        ========================== */
+        .priority-guide {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .guide-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px;
+            background: var(--surface-soft);
+            border-radius: 9px;
+        }
+
+        .guide-color {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            margin-top: 3px;
+            border-radius: 50%;
+        }
+
+        .guide-item h4 {
+            margin-bottom: 5px;
+        }
+
+        .guide-item p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* =========================
+           13. REPORT HISTORY
+        ========================== */
+        .report {
+            padding: 17px;
+            margin-bottom: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow-wrap: anywhere;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .report-title {
+            color: var(--heading);
+            font-weight: bold;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: #64748b;
+        }
+
+        .status-progress {
+            background: #2563eb;
+        }
+
+        .status-resolved {
+            background: #15803d;
+        }
+
+        .report-info {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.9;
+        }
+
+        .report-image {
+            display: block;
+            width: 100%;
+            max-width: 350px;
+            max-height: 250px;
+            object-fit: contain;
+            margin-top: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .empty {
+            padding: 25px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .small-note {
+            display: block;
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           14. SETTINGS
+        ========================== */
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 18px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-row:last-child {
+            border-bottom: none;
+        }
+
+        .settings-row h3 {
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+
+        .settings-row p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 29px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+
+        .switch-slider {
+            position: absolute;
+            inset: 0;
+            background: #9ca3af;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .switch-slider::before {
+            content: "";
+            position: absolute;
+            width: 21px;
+            height: 21px;
+            left: 4px;
+            bottom: 4px;
+            background: #ffffff;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        .switch input:checked + .switch-slider {
+            background: #2563eb;
+        }
+
+        .switch input:checked + .switch-slider::before {
+            transform: translateX(23px);
+        }
+
+        /* =========================
+           15. HELP AND QR CODE
+        ========================== */
+        .help-list {
+            padding-left: 22px;
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .help-list li {
+            margin-bottom: 12px;
+        }
+
+        .notice {
+            padding: 14px;
+            margin-top: 16px;
+            background: var(--surface-soft);
+            border-left: 4px solid var(--blue);
+            border-radius: 7px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .qr-wrap {
+            text-align: center;
+        }
+
+        .qr-wrap img {
+            display: block;
+            width: 240px;
+            height: 240px;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .qr-wrap p {
+            color: var(--muted);
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+            margin: 15px 0;
+        }
+
+        .feedback-success {
+            margin-top: 12px;
+            color: var(--success);
+            font-size: 14px;
+        }
+
+        /* =========================
+           16. RESPONSIVE DESIGN
+        ========================== */
+        @media (max-width: 1000px) {
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .navbar {
+                padding: 10px 12px;
+                gap: 9px;
+            }
+
+            .menu-toggle {
+                width: 36px;
+                height: 40px;
+                font-size: 25px;
+            }
+
+            .navbar-title {
+                font-size: 15px;
+            }
+
+            .navbar-title span {
+                font-size: 10px;
+            }
+
+            .user-name {
+                display: none;
+            }
+
+            .layout {
+                display: block;
+            }
+
+            .sidebar {
+                width: 250px;
+                max-width: 85vw;
+                height: calc(100vh - 65px);
+                position: fixed;
+                top: 65px;
+                left: 0;
+                z-index: 90;
+                overflow-y: auto;
+                box-shadow: var(--shadow);
+                transition: transform 0.2s;
+            }
+
+            .sidebar.collapsed {
+                width: 250px;
+                padding: 20px 12px;
+                transform: translateX(-105%);
+            }
+
+            .main {
+                padding: 20px 12px 35px;
+            }
+
+            .welcome h1 {
+                font-size: 23px;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-card strong {
+                font-size: 23px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .priority-option {
+                padding: 11px 5px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         TOP NAVIGATION
+    ========================== -->
+    <nav class="navbar">
+        <button
+            type="button"
+            class="menu-toggle"
+            id="menuToggle"
+            aria-label="Toggle navigation menu"
+            aria-expanded="true"
+        >☰</button>
+
+        <div class="navbar-title">
+            CFSI Fault Reporting System
+            <span>Children of Fatima School of Mabalacat, Inc.</span>
+        </div>
+
+        <div class="user-section">
+            <span class="user-name">Student User</span>
+            <div class="user-avatar">SU</div>
+        </div>
+    </nav>
+
+    <div class="layout">
+
+        <!-- =========================
+             SIDEBAR MENU
+        ========================== -->
+        <aside class="sidebar" id="sidebar" aria-label="Main menu">
+            <div class="menu-label">Main Menu</div>
+
+            <button class="nav-button active" data-page="home">
+                🏠 &nbsp; Home / Dashboard
+            </button>
+
+            <button class="nav-button" data-page="history">
+                🕘 &nbsp; Report History
+            </button>
+
+            <button class="nav-button" data-page="feedback">
+                ✉️ &nbsp; Feedback
+            </button>
+
+            <button class="nav-button" data-page="qr">
+                ▦ &nbsp; QR Code
+            </button>
+
+            <button class="nav-button" data-page="help">
+                ❔ &nbsp; How to Use
+            </button>
+
+            <button class="nav-button" data-page="settings">
+                ⚙️ &nbsp; Settings
+            </button>
+        </aside>
+
+        <!-- =========================
+             MAIN CONTENT
+        ========================== -->
+        <main class="main">
+
+            <!-- HOME / DASHBOARD -->
+            <section class="page active" id="page-home">
+
+                <div class="welcome">
+                    <h1>Welcome, Fatimanian!</h1>
+                    <p>Report damaged or faulty school facilities and equipment.</p>
+                </div>
+
+                <section class="stats">
+                    <div class="stat-card">
+                        <h3>Total Reports</h3>
+                        <strong id="totalReports">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>Pending</h3>
+                        <strong id="pendingReports">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>In Progress</h3>
+                        <strong id="progressReports">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>Resolved</h3>
+                        <strong id="resolvedReports">0</strong>
+                    </div>
+                </section>
+
+                <section class="content-grid">
+
+                    <!-- REPORT FORM -->
+                    <div class="card">
+                        <h2 class="card-title">Narrative Report</h2>
+
+                        <form id="reportForm">
+
+                            <div class="input-group">
+                                <label for="location">Location</label>
+                                <input
+                                    type="text"
+                                    id="location"
+                                    placeholder="Example: Grade 12 ICT Gosling"
+                                    maxlength="150"
+                                    required
+                                >
+                            </div>
+
+                            <div class="input-group">
+                                <label for="equipment">Equipment / Facility Category</label>
+
+                                <select id="equipment" required>
+                                    <option value="">Select a category</option>
+
+                                    <optgroup label="• Electronic Equipment">
+                                        <option>Computers</option>
+                                        <option>Projectors</option>
+                                        <option>Printers</option>
+                                        <option>Speakers</option>
+                                        <option>Other electronic devices used by the school</option>
+                                    </optgroup>
+
+                                    <optgroup label="• Utilities and Fixtures">
+                                        <option>Light bulbs</option>
+                                        <option>Electric fans</option>
+                                        <option>Electrical fixtures</option>
+                                        <option>Faucets</option>
+                                        <option>Other school utility-related items</option>
+                                    </optgroup>
+
+                                    <optgroup label="• General School Equipment">
+                                        <option>Chairs</option>
+                                        <option>Tables</option>
+                                        <option>Cabinets</option>
+                                        <option>Other</option>
+                                    </optgroup>
+
+                                    <optgroup label="• School Facilities / Infrastructure">
+                                        <option>Broken doors</option>
+                                        <option>Damaged windows</option>
+                                        <option>Ceiling problems</option>
+                                        <option>Damaged walls</option>
+                                    </optgroup>
+                                </select>
+
+                                <span class="small-note">
+                                    Choose the category that best matches the damaged item.
+                                </span>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="description">Description of Problem</label>
+                                <textarea
+                                    id="description"
+                                    placeholder="Describe the problem or damage..."
+                                    maxlength="1500"
+                                    required
+                                ></textarea>
+                            </div>
+
+                            <div class="input-group">
+                                <label>Report Severity</label>
+
+                                <div class="priority-options">
+                                    <button type="button" class="priority-option critical" data-priority="Critical">
+                                        🔴 Critical
+                                    </button>
+
+                                    <button type="button" class="priority-option high" data-priority="High">
+                                        🟠 High
+                                    </button>
+
+                                    <button type="button" class="priority-option moderate" data-priority="Moderate">
+                                        🟡 Moderate
+                                    </button>
+
+                                    <button type="button" class="priority-option low" data-priority="Low">
+                                        🔵 Low
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="photo">Photo of Fault (Optional)</label>
+                                <input type="file" id="photo" accept="image/*">
+
+                                <img
+                                    id="photoPreview"
+                                    class="photo-preview"
+                                    alt="Preview of the selected fault photo"
+                                >
+
+                                <span class="small-note">
+                                    For this local demo, use an image smaller than 1 MB.
+                                </span>
+                            </div>
+
+                            <button type="submit" class="submit-btn">
+                                Submit Fault Report
+                            </button>
+
+                            <p id="formMessage" class="small-note" role="status"></p>
+
+                        </form>
+                    </div>
+
+                    <!-- SEVERITY GUIDE -->
+                    <div class="card">
+                        <h2 class="card-title">Report Severity Guide</h2>
+
+                        <div class="priority-guide">
+
+                            <div class="guide-item">
+                                <span class="guide-color" style="background:#dc2626"></span>
+                                <div>
+                                    <h4>Critical</h4>
+                                    <p>
+                                        A potentially dangerous or major problem requiring immediate attention.
+                                        Notify a teacher or school authority directly if there is danger.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="guide-item">
+                                <span class="guide-color" style="background:#f97316"></span>
+                                <div>
+                                    <h4>High</h4>
+                                    <p>
+                                        A significant problem that should receive prompt attention.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="guide-item">
+                                <span class="guide-color" style="background:#eab308"></span>
+                                <div>
+                                    <h4>Moderate</h4>
+                                    <p>
+                                        A problem that affects normal use but can temporarily be managed.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="guide-item">
+                                <span class="guide-color" style="background:#2563eb"></span>
+                                <div>
+                                    <h4>Low</h4>
+                                    <p>
+                                        A minor issue that does not significantly affect school operations.
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="notice">
+                            Do not touch damaged electrical equipment or put yourself in danger
+                            to take a photo.
+                        </div>
+                    </div>
+
+                </section>
+
+                <section class="card reports-card">
+                    <h2 class="card-title">My Recent Reports</h2>
+
+                    <div id="recentReports" class="empty">
+                        No reports submitted yet.
+                    </div>
+
+                    <button type="button" class="secondary-btn" data-goto="history">
+                        View Full Report History
+                    </button>
+                </section>
+
+            </section>
+
+            <!-- REPORT HISTORY -->
+            <section class="page" id="page-history">
+                <div class="welcome">
+                    <h1>Report History</h1>
+                    <p>Review your submitted reports and their current status.</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">All Submitted Reports</h2>
+
+                    <div id="historyReports" class="empty">
+                        No reports submitted yet.
+                    </div>
+
+                    <button type="button" class="secondary-btn" data-goto="home">
+                        + Submit a New Report
+                    </button>
+                </div>
+
+                <div class="notice">
+                    This prototype saves reports on this browser only.
+                    It does not synchronize reports across devices.
+                </div>
+            </section>
+
+            <!-- FEEDBACK -->
+            <section class="page" id="page-feedback">
+                <div class="welcome">
+                    <h1>Feedback</h1>
+                    <p>Share suggestions to help improve the CFSI Fault Reporting System.</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Send Feedback</h2>
+
+                    <form id="feedbackForm">
+                        <div class="input-group">
+                            <label for="feedbackType">Feedback Type</label>
+
+                            <select id="feedbackType" required>
+                                <option value="">Choose a type</option>
+                                <option>Suggestion</option>
+                                <option>Bug / Technical Problem</option>
+                                <option>Usability</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="rating">How easy was the system to use?</label>
+
+                            <select id="rating" required>
+                                <option value="">Choose a rating</option>
+                                <option>5 - Very easy</option>
+                                <option>4 - Easy</option>
+                                <option>3 - Okay</option>
+                                <option>2 - Difficult</option>
+                                <option>1 - Very difficult</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="feedbackText">Your Feedback</label>
+
+                            <textarea
+                                id="feedbackText"
+                                placeholder="Tell us what worked well or what could be improved..."
+                                maxlength="1500"
+                                required
+                            ></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn">
+                            Save Feedback
+                        </button>
+
+                        <p id="feedbackMessage" class="feedback-success" role="status"></p>
+                    </form>
+                </div>
+
+                <div class="notice">
+                    Feedback is saved locally in this demo. It is not automatically
+                    sent to teachers or administrators.
+                </div>
+            </section>
+
+            <!-- QR CODE -->
+            <section class="page" id="page-qr">
+                <div class="welcome">
+                    <h1>QR Code</h1>
+                    <p>Provide a QR code so students can quickly access the reporting website.</p>
+                </div>
+
+                <div class="card qr-wrap">
+                    <h2 class="card-title">CFSI Fault Reporting System QR Code</h2>
+
+                    <img id="qrImage" alt="QR code for the website">
+
+                    <p id="qrDescription">Preparing QR code...</p>
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="downloadQR"
+                        style="max-width:260px"
+                    >
+                        Download QR Code
+                    </button>
+
+                    <div class="notice" style="text-align:left">
+                        When testing locally, the QR code may point to a file address
+                        that other students cannot access. After publishing the website,
+                        use its public URL for school-wide access.
+                    </div>
+                </div>
+            </section>
+
+            <!-- HOW TO USE -->
+            <section class="page" id="page-help">
+                <div class="welcome">
+                    <h1>How to Use the Website</h1>
+                    <p>Follow these steps to report a damaged school facility or equipment.</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Student Reporting Guide</h2>
+
+                    <ol class="help-list">
+                        <li>
+                            <strong>Open Home / Dashboard.</strong>
+                            This is the main page where you can submit a fault report.
+                        </li>
+                        <li>
+                            <strong>Enter the location.</strong>
+                            Include a room number, floor, laboratory, or other clear location.
+                        </li>
+                        <li>
+                            <strong>Select a category.</strong>
+                            Choose the appropriate electronic equipment, utility, general equipment,
+                            or school facility category.
+                        </li>
+                        <li>
+                            <strong>Describe the problem.</strong>
+                            Explain what is damaged and how it affects its use.
+                        </li>
+                        <li>
+                            <strong>Choose a severity.</strong>
+                            Select Critical, High, Moderate, or Low according to the severity guide.
+                        </li>
+                        <li>
+                            <strong>Add a photo if available.</strong>
+                            Never put yourself at risk to take a picture.
+                        </li>
+                        <li>
+                            <strong>Submit the report.</strong>
+                            Review your information and press Submit Fault Report.
+                        </li>
+                        <li>
+                            <strong>Check Report History.</strong>
+                            Review the reports saved on your current device.
+                        </li>
+                        <li>
+                            <strong>Use Feedback and Settings.</strong>
+                            Share suggestions or change between light and dark mode.
+                        </li>
+                    </ol>
+
+                    <div class="notice">
+                        If a problem presents immediate danger, notify a teacher or
+                        school authority directly.
+                    </div>
+                </div>
+            </section>
+
+            <!-- SETTINGS -->
+            <section class="page" id="page-settings">
+                <div class="welcome">
+                    <h1>Settings</h1>
+                    <p>Customize the appearance and preferences of your dashboard.</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Appearance and Data</h2>
+
+                    <div class="settings-row">
+                        <div>
+                            <h3>Dark Mode</h3>
+                            <p>
+                                Switch between light and dark themes.
+                                Your preference is saved on this device.
+                            </p>
+                        </div>
+
+                        <label class="switch" aria-label="Toggle dark mode">
+                            <input type="checkbox" id="darkModeToggle">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="settings-row">
+                        <div>
+                            <h3>Clear Local Demo Data</h3>
+                            <p>
+                                Remove reports and feedback saved by this prototype
+                                in this browser.
+                            </p>
+                        </div>
+
+                        <button type="button" class="secondary-btn" id="clearData">
+                            Clear Data
+                        </button>
+                    </div>
+
+                    <div class="notice">
+                        Clearing data permanently removes the locally saved reports
+                        and feedback from this browser.
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        /* =========================
+           1. STORAGE AND VARIABLES
+        ========================== */
+        const REPORT_KEY = "cfsiReports";
+        const FEEDBACK_KEY = "cfsiFeedback";
+        const THEME_KEY = "cfsiDarkMode";
+
+        let selectedPriority = "";
+        let reports = readArray(REPORT_KEY);
+        let feedbackEntries = readArray(FEEDBACK_KEY);
+
+        function readArray(key) {
+            try {
+                const data = JSON.parse(localStorage.getItem(key));
+                return Array.isArray(data) ? data : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function saveArray(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+                return true;
+            } catch (error) {
+                alert("Storage is full. Try using a smaller photo or removing old demo data.");
+                return false;
+            }
+        }
+
+        /* =========================
+           2. MENU BUTTON
+        ========================== */
+        const sidebar = document.getElementById("sidebar");
+        const menuToggle = document.getElementById("menuToggle");
+
+        function updateMenuButton() {
+            menuToggle.setAttribute(
+                "aria-expanded",
+                String(!sidebar.classList.contains("collapsed"))
+            );
+        }
+
+        menuToggle.addEventListener("click", function () {
+            sidebar.classList.toggle("collapsed");
+            updateMenuButton();
+        });
+
+        /* =========================
+           3. PAGE NAVIGATION
+        ========================== */
+        function showPage(pageName) {
+            document.querySelectorAll(".page").forEach(function (page) {
+                page.classList.toggle("active", page.id === "page-" + pageName);
+            });
+
+            document.querySelectorAll(".nav-button").forEach(function (button) {
+                button.classList.toggle("active", button.dataset.page === pageName);
+            });
+
+            if (window.innerWidth <= 700) {
+                sidebar.classList.add("collapsed");
+                updateMenuButton();
+            }
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        document.querySelectorAll(".nav-button").forEach(function (button) {
+            button.addEventListener("click", function () {
+                showPage(button.dataset.page);
+            });
+        });
+
+        document.querySelectorAll("[data-goto]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                showPage(button.dataset.goto);
+            });
+        });
+
+        /* =========================
+           4. SEVERITY SELECTION
+        ========================== */
+        document.querySelectorAll("[data-priority]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                selectedPriority = button.dataset.priority;
+
+                document.querySelectorAll("[data-priority]").forEach(function (item) {
+                    item.classList.toggle("selected", item === button);
+                });
+            });
+        });
+
+        /* =========================
+           5. PHOTO PREVIEW
+        ========================== */
+        document.getElementById("photo").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById("photoPreview");
+
+            if (!file) {
+                preview.style.display = "none";
+                preview.removeAttribute("src");
+                return;
+            }
+
+            if (!file.type.startsWith("image/")) {
+                alert("Please select an image file.");
+                event.target.value = "";
+                return;
+            }
+
+            if (file.size > 1024 * 1024) {
+                alert("Please select an image smaller than 1 MB for this demo.");
+                event.target.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = "block";
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        /* =========================
+           6. SUBMIT FAULT REPORT
+        ========================== */
+        document.getElementById("reportForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            if (!selectedPriority) {
+                alert("Please select a report severity.");
+                return;
+            }
+
+            const location = document.getElementById("location").value.trim();
+            const equipment = document.getElementById("equipment").value;
+            const description = document.getElementById("description").value.trim();
+            const photoFile = document.getElementById("photo").files[0];
+
+            function saveReport(photoData) {
+                const report = {
+                    id: "CFSI-" + Date.now(),
+                    location: location,
+                    equipment: equipment,
+                    description: description,
+                    severity: selectedPriority,
+                    photo: photoData || "",
+                    status: "Pending",
+                    date: new Date().toLocaleString()
+                };
+
+                reports.push(report);
+
+                if (!saveArray(REPORT_KEY, reports)) {
+                    reports.pop();
+                    return;
+                }
+
+                document.getElementById("formMessage").textContent =
+                    "Report saved successfully on this device.";
+
+                document.getElementById("reportForm").reset();
+
+                selectedPriority = "";
+
+                document.querySelectorAll("[data-priority]").forEach(function (button) {
+                    button.classList.remove("selected");
+                });
+
+                const preview = document.getElementById("photoPreview");
+                preview.style.display = "none";
+                preview.removeAttribute("src");
+
+                renderReports();
+            }
+
+            if (photoFile) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    saveReport(e.target.result);
+                };
+
+                reader.readAsDataURL(photoFile);
+            } else {
+                saveReport("");
+            }
+        });
+
+        /* =========================
+           7. SAFE REPORT DISPLAY
+        ========================== */
+        function escapeHTML(value) {
+            return String(value ?? "").replace(/[&<>"']/g, function (character) {
+                const entities = {
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#39;"
+                };
+
+                return entities[character];
+            });
+        }
+
+        function getStatusClass(status) {
+            if (status === "Resolved") return "status-resolved";
+            if (status === "In Progress") return "status-progress";
+            return "status-pending";
+        }
+
+        function reportHTML(report) {
+            const photoHTML = report.photo
+                ? `<img class="report-image" src="${report.photo}" alt="Uploaded fault photo">`
+                : "";
+
+            return `
+                <article class="report">
+                    <div class="report-header">
+                        <div class="report-title">
+                            ${escapeHTML(report.equipment)}
+                            <div class="small-note">${escapeHTML(report.id)}</div>
+                        </div>
+
+                        <span class="badge ${getStatusClass(report.status)}">
+                            ${escapeHTML(report.status)}
+                        </span>
+                    </div>
+
+                    <div class="report-info">
+                        <strong>Location:</strong> ${escapeHTML(report.location)}<br>
+                        <strong>Severity:</strong> ${escapeHTML(report.severity)}<br>
+                        <strong>Date submitted:</strong> ${escapeHTML(report.date)}<br>
+                        <strong>Description:</strong> ${escapeHTML(report.description)}
+                    </div>
+
+                    ${photoHTML}
+                </article>
+            `;
+        }
+
+        /* =========================
+           8. UPDATE DASHBOARD
+        ========================== */
+        function renderReports() {
+            document.getElementById("totalReports").textContent = reports.length;
+
+            document.getElementById("pendingReports").textContent =
+                reports.filter(report => report.status === "Pending").length;
+
+            document.getElementById("progressReports").textContent =
+                reports.filter(report => report.status === "In Progress").length;
+
+            document.getElementById("resolvedReports").textContent =
+                reports.filter(report => report.status === "Resolved").length;
+
+            const sortedReports = [...reports].reverse();
+            const recentReports = sortedReports.slice(0, 3);
+
+            document.getElementById("recentReports").innerHTML =
+                recentReports.length
+                    ? recentReports.map(reportHTML).join("")
+                    : '<div class="empty">No reports submitted yet.</div>';
+
+            document.getElementById("historyReports").innerHTML =
+                sortedReports.length
+                    ? sortedReports.map(reportHTML).join("")
+                    : '<div class="empty">No reports submitted yet.</div>';
+        }
+
+        /* =========================
+           9. FEEDBACK FORM
+        ========================== */
+        document.getElementById("feedbackForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const entry = {
+                type: document.getElementById("feedbackType").value,
+                rating: document.getElementById("rating").value,
+                text: document.getElementById("feedbackText").value.trim(),
+                date: new Date().toLocaleString()
+            };
+
+            feedbackEntries.push(entry);
+
+            if (!saveArray(FEEDBACK_KEY, feedbackEntries)) {
+                feedbackEntries.pop();
+                return;
+            }
+
+            this.reset();
+
+            document.getElementById("feedbackMessage").textContent =
+                "Thank you! Your feedback was saved on this device.";
+        });
+
+        /* =========================
+           10. LIGHT AND DARK MODE
+        ========================== */
+        const darkModeToggle = document.getElementById("darkModeToggle");
+
+        function setDarkMode(enabled) {
+            document.body.classList.toggle("dark", enabled);
+            darkModeToggle.checked = enabled;
+
+            try {
+                localStorage.setItem(THEME_KEY, enabled ? "true" : "false");
+            } catch (error) {
+                // Theme still works for the current session.
+            }
+        }
+
+        let savedTheme = false;
+
+        try {
+            savedTheme = localStorage.getItem(THEME_KEY) === "true";
+        } catch (error) {
+            savedTheme = false;
+        }
+
+        setDarkMode(savedTheme);
+
+        darkModeToggle.addEventListener("change", function () {
+            setDarkMode(this.checked);
+        });
+
+        /* =========================
+           11. CLEAR LOCAL DATA
+        ========================== */
+        document.getElementById("clearData").addEventListener("click", function () {
+            const confirmed = confirm(
+                "Delete all reports and feedback saved in this browser? This cannot be undone."
+            );
+
+            if (!confirmed) return;
+
+            reports = [];
+            feedbackEntries = [];
+
+            saveArray(REPORT_KEY, reports);
+            saveArray(FEEDBACK_KEY, feedbackEntries);
+
+            renderReports();
+
+            alert("Local demo data cleared.");
+        });
+
+        /* =========================
+           12. QR CODE
+        ========================== */
+        const qrImage = document.getElementById("qrImage");
+        const qrURL = window.location.href;
+
+        qrImage.src =
+            "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+            encodeURIComponent(qrURL);
+
+        document.getElementById("qrDescription").textContent =
+            "QR code destination: " + qrURL;
+
+        document.getElementById("downloadQR").addEventListener("click", async function () {
+            try {
+                const response = await fetch(qrImage.src);
+
+                if (!response.ok) {
+                    throw new Error("QR code download failed");
+                }
+
+                const blob = await response.blob();
+                const objectURL = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+
+                link.href = objectURL;
+                link.download = "CFSI-Fault-Reporting-QR.png";
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+                URL.revokeObjectURL(objectURL);
+            } catch (error) {
+                window.open(qrImage.src, "_blank");
+            }
+        });
+
+        /* =========================
+           13. INITIALIZE
+        ========================== */
+        if (window.innerWidth <= 700) {
+            sidebar.classList.add("collapsed");
+            updateMenuButton();
+        }
+
+        renderReports();
+    </script>
+
+</body>
+</html>
